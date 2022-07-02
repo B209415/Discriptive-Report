@@ -1,0 +1,90 @@
+---
+title: "B209415 discriptive report"
+output: pdf_document
+Author: B209415
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Exploratory analysis
+Data used for this report is part of the accidents and emergency attendances and admissions data which is a part of NHISdatasets package.
+As accidents and emergency dataset is very large with 12,765 raws, it was divided into training (which was used over the course) and test data (which was used to collect data through the data capture tool in python).
+To generate the test data an index column was added to the accidents and emergency data. Then the needed variables has been selected (here index, period, attendances and breaches was selected to be included in the test dataset and in the data capture tool, then generating the proportion of data as training data (the training dataset will have the majority of the data and it is generated randomly). Finally the test dataset is the subset of accidents and emergency data after subtracting the training data.
+The final accidents and emergency attendances and breaches test dataset that will be used for data collection is a CSV data with 12 observations and 4 variables. The variables are: index (an integer variable that give sequential number for each observation), period ( date variable (integer), indicate the month in which each activity happened), attendances (decimal variable, denotes the number of attendances in each month) and breaches (decimal variable, denotes the number of attendances that breached the four hour target).
+Information on the average attendances and breaches over years will help  policymakers monitoring the progression of hospitals performance over the whole England.
+```{r include=FALSE}
+#loading all the NHS datasets
+library(NHSRdatasets)
+
+#Loading packages that we will be using for data importing, manipulation, exploration and analysis
+library(tidyverse)
+library(readr)
+library(here)
+library(knitr)
+library(scales)
+library(lubridate)
+library(caret)
+```
+
+```{r include=FALSE}
+#Load the ae_attendances data.
+data(ae_attendances)
+ae<-ae_attendances
+class(ae)
+```
+
+```{r echo=FALSE}
+#Firstly Adding index column which will allow extacting certain observations
+ae <- rowid_to_column(ae, "index")
+
+
+#Secondly selecting the variable needed for data collection and analysis
+ae<-ae %>% select(index, period, attendances, breaches)
+
+#Thirdly determining the proportion of dataset that will be in the training
+prop<-(1-(15/nrow(ae)))
+
+#Fourthly genrating random objects and partitioning the raw data into the test and training data.
+trainIndex <- createDataPartition(ae$index, p = prop, 
+                                  list = FALSE, 
+                                  times = 1)
+
+# All records that are in the trainIndex are assigned to the training data.
+aeTrain <- ae[ trainIndex,]
+
+
+#saving the training dataset 
+write_csv(aeTrain, here("Data", "ae_attendances_ENG_4hr_perfom_train.csv"))
+
+#extracting test data
+aeTest  <- ae[-trainIndex,]
+
+
+#Saving the test dataset as csv format
+write_csv(aeTest, here("Data", "ae_attendances_test.csv"))
+
+#view, classify and inspecting the test dataset and variables
+aeTest %>%
+  mutate_at(vars(period), format, "%b-%y") %>% 
+  mutate_at(vars(attendances, breaches), comma) %>%
+  head(13) %>%
+  kable()
+
+```
+
+```{r}
+
+```
+
+```
+
+## Plots
+
+
+```{r pressure, echo=FALSE}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
