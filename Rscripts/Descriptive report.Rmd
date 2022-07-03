@@ -2,6 +2,7 @@
 title: "B209415 discriptive report"
 output: pdf_document
 Author: B209415
+Git hub repository: https://github.com/B209415/Discriptive-Report
 ---
 
 ```{r setup, include=FALSE}
@@ -73,18 +74,214 @@ aeTest %>%
   kable()
 
 ```
+## Analysis
+The data generated through the data capture tool (the tool was generated in python) is a CSV file and called createdData. The data entered from accidents and emergency test data. The tool captures five variables (index, period, attendances, breaches and consent).  So, it contains the same variable in the test data except the consent which is added in the tool and is extremely important to protect the ethical values while collecting the data, and it is a logical variable. 
+Various types of exploratory and explanatory analysis can be done based on this data which will be valuable information for policy makers.
+It allows us to know the total,  average, minimum and maximum attendances and breaches across the England hospitals over the period of four years. It will also allows measuring the differences and comparing attendances and breaches for all England in different years. This information is valuable as it will show which year had the peak of attencendeces and breaches and whether this difference is statistically significant compared to other years. This may motivate further investigations on the cases of this peaks and differences.
+According to the data that was collected by the data capture tool, though 2018 had the highest average attendances it had the lowest breaches. 2019 had the lowest average attendance. Further analysis is illustrated in tables A to D and the graph.
 
-```{r}
 
+```{r include=FALSE}
+
+CD <- read_csv("/home/jovyan/B209415/B209415- Second assessment - Descriptive report/Discriptive-Report/Data/createdData.csv")
+
+library(dataMeta)
 ```
 
+```{r include=FALSE}
+#Building the data dictionary
+
+#Making a variable discription
+variable_description <- c("The index column that allows us to link the data collected to the original ae_attendances data in the 'RawData' folder.",
+"The month that this activity relates to, stored as a date (1st of each month).",
+"The number of attendances for this department type at this organisation for this month.", 
+"The number of attendances that breached the four-hour target.",
+"The consent from the end-user to process and share the data collected with the data capture tool.")
+
+#Determing the type of the variable
+variable_type <- c(0, 1, 0, 0, 1)
+
+#linking the variable description with the type of the variable
+linker<-build_linker(CD, variable_description, variable_type)
+
+#building the data dictionary
+dictionary <- build_dict(my.data = my.data, linker = linker, option_description = NULL, 
+prompt_varopts = FALSE)
+
+glimpse(dictionary)
+
+write_csv(dictionary , here("Data", "CollectedData_DataDictionary.csv"))
+
+main_string <- "This data describes the NHS England accident and emergency (A&E) attendances and breaches of four-hour wait time target data from the *NHSRdatasets* package collected by the data capture tool."
+main_string
+
+complete_createdData <- incorporate_attr(my.data = CD, data.dictionary = dictionary,
+main_string = main_string)
+#Change the author name
+attributes(complete_createdData)$author[1]<-"B209415"
+complete_createdData
+
+```
+```{r include=FALSE}
+attributes(complete_createdData)
+```
+## Descriptive statstics
+## TableA:summerize the attendences data
+
+```{r echo=FALSE}
+
+tableA <- CD %>%
+drop_na(attendances) %>%
+  summarize(meanattendances = mean(attendances)
+            , SDattendances = sd(attendances), 
+            minattendances = min(attendances), 
+            maxattendances = max(attendances))
+tableA%>%
+  kable()
+
+
+```
+## TableB: summerize the breaches data
+
+```{r echo=FALSE}
+tableB <- CD %>%
+  drop_na(attendances) %>%
+  summarize(meanbreaches = mean(breaches),
+            SDbreaches = sd(breaches), 
+            minbreaches = min(breaches), 
+            maxbreaches = max(breaches))
+tableB%>%
+  kable()
 ```
 
-## Plots
+## TableC: Showing the summary of attendences and breaches by year
 
-
-```{r pressure, echo=FALSE}
+```{r echo=FALSE}
+#TableC: shows the summary statstics for attendences by year
+tableC <- CD %>%
+  mutate_at(vars(period), format, "%y") %>%
+  group_by(period) %>%
+  summarize(meanattendances = mean(attendances),
+            SDattendances = sd(attendances), 
+            sumattendences = sum(attendances),
+            minattendances = min(attendances), 
+            maxattendances = max(attendances))
+tableC %>%
+  kable()
 
 ```
+## TableD: shows the summary statstics for breaches by year
+```{r echo=FALSE}
+tableD <- CD %>%
+  mutate_at(vars(period), format, "%y") %>%
+  group_by(period) %>%
+  summarize(meanbreaches = mean(breaches),
+            SDbreaches = sd(breaches), 
+            sumbreaches = sum(breaches),
+            minbreaches = min(breaches), 
+            maxbreaches = max(breaches))
+tableD%>%
+  kable()
+```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## Creation of graphs that shows the the attendances and breaches by year
+## The period is in the x-axis, attendences in the y-axis, whie the size of the puple represent the number of breaches amonge attendences each year
+```{r echo=FALSE}
+
+graph_A <- CD %>%
+  ggplot() +
+  geom_point(aes(period, attendances, size = breaches))
+  
+graph_A
+```
+
+### Data Management
+
+## ADMINISTRATIVE INFORMATION
+Institute: Deanery of Molecular, Genetic and Population Health Sciences, University of Edinburgh
+Supervisor: Dr Mairead Bermingham, mairead.bermingham@ed.ac.uk
+ 
+## Project start - end date
+2022-04-06  - 2022-04-07                  
+   
+## Data Collection
+Data collection tool was generated in python to collect part of accidents and emergency attendances and breach data provided by NHIS datasets. 
+The data collection tool capture 5 variables:
+1- Index.
+2- Period.
+3- Attendance.
+4- Breaches.
+5- Consent.
+The data used for data collection and the data generated through the data capture tool are both in CSV format.
+ 
+## Documentation & Metadata
+The data collected by the data capture tool and variables were described and metadata was created using the dictionary function within R. 
+Then the dictionary was saved in a separate file within the data folder.
+ 
+## Ethics & Legal Compliance
+The project will comply with the college of Arts, Humanities and Social Sciences (CAHSS) research ethics framework and guidelines at the university of Edinburgh 
+ 
+## STORAGE AND BACK-UP
+The data will be organised into folders. Each folder for specific type of data and then the data and the changes made to it will be stored in the Notable and the Github repository of the principal investigator
+ 
+## SELECTION AND PRESERVATION
+Long term data storage
+The data will be kept in an online repository for one month to give the collaborator an opportunity to assess the project after it is finished.
+After that the data will be kept in the University of Edinburgh DataShare repository.
+The data that will be stored
+The original data and all the data derived from it, the r codes and python scripts that has been used to import, manipulate, collect and analyse the data as well as the results of the analysis.
+ 
+## DATA SHARING
+After obtaining the ethical approval from the The data will be shared through the NHS the data will be share as follow:
+Throughout the project
+1- Git hub repository 
+2- The university of Edinburgh SharePoint
+After the project
+1- University of Edinburgh DataShare data repository
+ 
+## RESPONSIBILITIES & RESOURCES
+The principal investigator is responsible for data management of this project
+Further training of how to upload to the university of Edinburgh SharePoint and Data share is required.
+
+
+
+### Coding 
+Start with a new project and clean environment, this will help in putting all activities in one place and avoid confusion in folders and errors.
+Writing the project name, the author and the link to Github in the header of the R markdown file.
+Installing and loading all necessary packages needed for the various codes that will be used.
+To ensure that I have effective codes i followed the following practices:
+Commenting and annotating before each code: This will help in code readability as it will allow anyone who reads through the document to understand what has been done and the intention of each code.
+Avoiding writing large chunks of code: Also to improve the readability cplex and long coding was avoided rather the code is divided and explained and steps were declared as (firstly, secondly, thirdly,...).
+All the codes were structured in a way that allows having the same results whenever it is run. To ensure this version control through Github repository was used both to save the data upon which the code depends and to allow tracking of changes to the codes and data. Both of the above mentioned practices will ensure code availability and reliability. 
+Storing original files, the codes, data produced in different folders but in the same directory.
+Using meaningful names: When assigning a name to data the name given is related to what data have such as accidents and emergency test data (ae - Test) or abbreviation of the data name (CreatedData: CD). This will help in avoiding unnecessary confusion.
+To avoid unnecessary error most of the codes used is a modification of already existing codes from the course examples.
+Closing of the project and running all the codes from the start to ensure that all codes are functioning whenever they called (ensuring availability and reliability)
+Saving correctly all the folders and files.
+Commenting and pushing all the changes made to the Github repository
+
+
+## Data storytelling
+The goal is to  know the situation of attendances and breaches in accidents and emergencies in England hospitals over the years and the difference in these figures. My target audience are the policy makers in the health sectors, as they guide implementation of various practices. This information will help them to understand the effect of activities in various years. It may also help them in investigating more in this topic.
+The data capture tool records the date, the attendees and breaches. The data resulting from this tool can be analysed in a very simple way (means/year. totals/year and the average across the year ) and then this data can be presented in simple tables and graphs.
+
+
+## Future work
+Next time I will be working with my tool I will start by detailing my data management plan, and how I am going to organise the folders within Notable and Github. Then I will further communicate with my collaborators/supervisors  and motivate them to revise and edit the tool and use the version control in Github.
+Then I will try the tool at different times to make sure all codes are working effectively.
+I will also make sure that all the codes are written according to the best practices.
+
+
+### Reflective practice
+## Data management process
+For me the data management process was the most challenging part especially using DMPonline. This has led to many troubles in the codes and data I used for the first assignment. However, after in depth studying about it from the course content, the discussions raised by my colleagues, and some external sources, I revised all the work I did previously and I was able to handle and analyse the data in a much more useful, and reproducible way. 
+## Coding practice
+As I have already studied the coding in R and python in the previous courses, I was familiar with most of the coding practices and I was trying to apply it throughout my coding. From readability, to availability and reliability.However, reliability was a significant problem for me as many codes were not running correctly when I was trying to run them later, so here I found the problem was basically in my data management process and not the code itself here I changed the way i handled the data (in terms of storge, version control..) and then I was able to write a good quality codes.
+## Response to feedback
+Though I used to have very poor input in the discussions posts especially in the first two weeks of the course. The discussions posts and my colleagues' thoughts, questions and responses to my post have significantly shaped my skills in coding and handling data. Many coding, data management and dictionary development difficulties that I or my peers  posted we found timely and efficient solutions that I applied to my practices.
+## Skills developed
+Throughout this course I learned many new skills, such as building the GIThub repository and how to connect it to my projects in R and python and then keeping track of all changes I made through the version control. Also, I learned how to build a data management plan utilising the DMPonline and then how to apply the plan for the data. Furthermore, I learned how to build a data capture tool in python.
+This course significantly improved my critical thinking and problem solving skills, as I learned many different ways of handling code errors and the importance of trying to understand the error itself.
+Finally, if there is one thing missing is the communication skills as I was not effectively participating in the discussions board and I missed a huge oppertunity.
+

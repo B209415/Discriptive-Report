@@ -1,0 +1,15 @@
+variable_name,variable_description,variable_options
+attendances,The number of attendances for this department type at this organisation for this month.,NA
+breaches,The number of attendances that breached the four-hour target.,NA
+consent,The consent from the end-user to process and share the data collected with the data capture tool.,NA
+data_field,NA,confirmed_acute_fever to zika_tested_pregnant
+data_field_code, ,VI0001 to VI0026
+index,The index column that allows us to link the data collected to the original ae_attendances data in the 'RawData' folder.,NA
+location, ,United_States_Virgin_Islands to United_States_Virgin_Islands-Saint_Thomas
+location_type, ,county to territory
+period,"The month that this activity relates to, stored as a date (1st of each month).",NA
+report_date, ,2017-01-03 to 2017-01-03
+time_period, ,NA
+time_period_type, ,NA
+unit, ,NA
+value, ,NA
